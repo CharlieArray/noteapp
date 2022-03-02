@@ -33,23 +33,23 @@ class createUser(graphene.Mutation):
     user = graphene.Field(User)
 
 
-# function that is applied once mutation is called. 
-# just a special resolver that can change data within
-def mutate(root, info, first_name, last_name, email, password):
-    new_user = UserModel(
-        first_name=first_name, 
-        last_name=last_name, 
-        email=email, 
-        password=str(bcrypt.generate_password_hash(password),'utf-8')
-    )
-    
-    # adds user to our database session
-    session.add(new_user)
-    # commits new user to db session so the data persists
-    session.commit()
-    ok = True
-    #returns an instance of the create User 
-    return createUser(ok=ok, user=new_user)
+    # function that is applied once mutation is called. 
+    # just a special resolver that can change data within
+    def mutate(root, info, first_name, last_name, email, password):
+        new_user = UserModel(
+            first_name=first_name, 
+            last_name=last_name, 
+            email=email, 
+            password=str(bcrypt.generate_password_hash(password),'utf-8')
+        )
+        
+        # adds user to our database session
+        session.add(new_user)
+        # commits new user to db session so the data persists
+        session.commit()
+        ok = True
+        #returns an instance of the create User 
+        return createUser(ok=ok, user=new_user)
 
 # add new note
 class addNote(graphene.Mutation):
@@ -124,6 +124,7 @@ class PreAuthMutation(graphene.ObjectType):
     create_user = createUser.Field()
 
 class Query(graphene.ObjectType):
+    
     # what is happening?
     # find single note
     findNote = graphene.Field(Notes, id=graphene.Int())
@@ -141,11 +142,12 @@ class Query(graphene.ObjectType):
         return session.query(NotesModel).filter_by(id=id).first()
 
 
-    class PreAuthQuery(graphene.ObjectType):
-        all_users = graphene.List(User)
+class PreAuthQuery(graphene.ObjectType):
+    all_users = graphene.List(User)
 
+    # what is happening with root and info?
     def resolve_all_users(root, info):
         return session.query(UserModel).all()
 
-    auth_required_schema = graphene.Schema(query=Query, mutation=PostAuthMutation)
-    schema = graphene.Schema(query=PreAuthQuery, mutation=PreAuthMutation)
+auth_required_schema = graphene.Schema(query=Query, mutation=PostAuthMutation)
+schema = graphene.Schema(query=PreAuthQuery, mutation=PreAuthMutation)

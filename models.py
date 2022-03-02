@@ -7,7 +7,7 @@ from sqlalchemy import *
 import os
 
 basedir = os.getcwd()
-engine = create_engine(f'sqllite:///{basedir}/dev.db')
+engine = create_engine(f"sqlite:///{basedir}/dev.db")
 session = scoped_session(
     sessionmaker(auto_commit=False,autoflush=False,bind=engine)
 )
@@ -22,6 +22,7 @@ class Notes(Base):
     title = Column(String(100))
     body = Column(Text(100))
     user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship("User", back_populates="notes")
 
 
 
