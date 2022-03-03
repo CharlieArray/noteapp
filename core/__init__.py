@@ -14,12 +14,13 @@ from models import User, session
 load_dotenv()  # loads environment variable from .env file
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.getenv('secret')
-app.config["JWT_SECRET_KEY"] = os.getenv('jwtsecret')
+# app.config["SECRET_KEY"] = os.getenv('secret')
+# app.config["JWT_SECRET_KEY"] = os.getenv('jwtsecret')
+# app.config["JWT_TOKEN_LOCATION"] = ["headers", "query_string"]
 
 bcrypt.init_app(app)
 auth.init_app(app)
-jwt.init_app(app)
+# jwt.init_app(app)
 
 @app.route('/')
 def index():
@@ -52,11 +53,13 @@ def graphql():
         graphiql=True,
         get_context=lambda: {
             'session': session,
-            'request':request,
-            'uid': get_jwt_identity()
+            'request': request,
+            # 'uid': get_jwt_identity()
         }
     )
+    return view
     return jwt_required(view)
+
 
 
 app.add_url_rule(
